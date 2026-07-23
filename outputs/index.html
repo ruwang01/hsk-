@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSK 等级查询 / HSK Level Lookup</title>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --card: #ffffff;
+    --border: #e3e3e6;
+    --text: #1f2328;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-bg: #eff4ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", Segoe UI, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  form { display: flex; gap: 8px; margin-bottom: 24px; }
+  input[type=text] {
+    flex: 1;
+    font-size: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+  }
+  input[type=text]:focus { border-color: var(--accent); }
+  button {
+    font-size: 16px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+  }
+  button:hover { opacity: 0.9; }
+  .status { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .card .word { font-size: 26px; font-weight: 600; }
+  .card .level {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    margin-left: 8px;
+  }
+  .card .meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+  .empty { color: var(--muted); font-size: 15px; padding: 24px 0; text-align: center; }
+  .breakdown-title { font-size: 13px; color: var(--muted); margin: 20px 0 8px; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HSK 等级查询</h1>
+  <div class="sub">Enter a Chinese word or character to see its HSK proficiency level.</div>
+
+  <form id="searchForm">
+    <input type="text" id="query" placeholder="输入词语或汉字，例如 苹果 / 本" autofocus autocomplete="off">
+    <button type="submit">查询</button>
+  </form>
+
+  <div class="status" id="status">Loading data…</div>
+  <div id="results"></div>
+
+  <footer>Data: HSK 3.0 syllabus (词汇 / 汉字 / 语法大纲). Client-side lookup only — no server, no data leaves your browser.</footer>
+</div>
+
+<script>
+let DATA = null;
+let vocabByWord = new Map();   // stripped word -> [entries]
+let charLevels = new Map();    // char -> [{level, type}]
+
+function stripHomographSuffix(s) {
+  return s.replace(/\d+$/, "");
+}
+
+async function loadData() {
+  const statusEl = document.getElementById("status");
+  try {
+    const res = await fetch("hsk_data.json");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    DATA = await res.json();
+  } catch (e) {
+    statusEl.textContent = "Could not load hsk_data.json (" + e.message + "). Make sure it sits next to index.html.";
+    return;
+  }
+
+  for (const row of DATA.vocab) {
+    const key = stripHomographSuffix(row["词语"]);
+    if (!vocabByWord.has(key)) vocabByWord.set(key, []);
+    vocabByWord.get(key).push(row);
+  }
+  for (const row of DATA.characters) {
+    const ch = row["汉字"];
+    if (!charLevels.has(ch)) charLevels.set(ch, []);
+    charLevels.get(ch).push({ level: row["级别"], type: row["类型"] });
+  }
+
+  statusEl.textContent =
+    `Loaded ${DATA.vocab.length.toLocaleString()} words, ${DATA.characters.length.toLocaleString()} characters, ${DATA.grammar.length.toLocaleString()} grammar points.`;
+}
+
+function renderWordResult(query, matches) {
+  return matches.map(m => `
+    <div class="card">
+      <div><span class="word">${m["词语"]}</span><span class="level">HSK ${m["等级"]}</span></div>
+      <div class="meta">${m["拼音"] || ""}${m["词性"] ? " · " + m["词性"] : ""}</div>
+    </div>
+  `).join("");
+}
+
+function renderCharResult(ch, entries) {
+  return entries.map(e => `
+    <div class="card">
+      <div><span class="word">${ch}</span><span class="level">HSK ${e.level}</span></div>
+      <div class="meta">${e.type}</div>
+    </div>
+  `).join("");
+}
+
+function renderBreakdown(query, perChar) {
+  let html = `<div class="breakdown-title">"${query}" isn't a listed word — per-character breakdown:</div>`;
+  html += perChar.map(({ ch, entries }) => renderCharResult(ch, entries)).join("");
+  return html;
+}
+
+function lookup(query) {
+  const resultsEl = document.getElementById("results");
+  query = query.trim();
+  if (!query) { resultsEl.innerHTML = ""; return; }
+
+  if (vocabByWord.has(query)) {
+    resultsEl.innerHTML = renderWordResult(query, vocabByWord.get(query));
+    return;
+  }
+
+  if (query.length === 1 && charLevels.has(query)) {
+    resultsEl.innerHTML = renderCharResult(query, charLevels.get(query));
+    return;
+  }
+
+  if (query.length > 1) {
+    const perChar = [];
+    for (const ch of query) {
+      if (charLevels.has(ch)) perChar.push({ ch, entries: charLevels.get(ch) });
+    }
+    if (perChar.length > 0) {
+      resultsEl.innerHTML = renderBreakdown(query, perChar);
+      return;
+    }
+  }
+
+  resultsEl.innerHTML = `<div class="empty">No match found for "${query}".</div>`;
+}
+
+document.getElementById("searchForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  lookup(document.getElementById("query").value);
+});
+
+loadData();
+</script>
+</body>
+</html>
