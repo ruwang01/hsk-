@@ -1,6 +1,8 @@
 import { createSegmenter } from './segment.js';
+import { connectVocabulary } from './vocabulary.js';
 
 const $ = id => document.getElementById(id);
+const vocabulary = connectVocabulary(levelText, badge);
 const input = $('input');
 const reading = $('reading');
 const EXAMPLE = '昨天，我和朋友一起去图书馆。我们准备了一些资料，打算讨论一个有趣的问题。\n\n下午突然下雨了，我们决定留下来继续学习。';
@@ -37,6 +39,7 @@ function updateInput() {
 
 function clearResult(message = '分级结果将在这里显示') {
   tokens = [];
+  vocabulary.setAnalysis([]);
   analyzedText = '';
   const empty = node('div', 'empty');
   const mark = node('span', '', '文');
@@ -101,6 +104,7 @@ async function analyze() {
 function renderTokens() {
   const fragment = document.createDocumentFragment();
   const counts = new Map();
+  const words = new Map();
   let total = 0;
   for (const token of tokens) {
     if (!token.isWord) {
@@ -114,6 +118,12 @@ function renderTokens() {
     button.addEventListener('click', () => selectToken(button, token));
     fragment.append(button);
     counts.set(token.level, (counts.get(token.level) ?? 0) + 1);
+    const previous = words.get(token.text);
+    if (previous) {
+      previous.count++;
+    } else {
+      words.set(token.text, { word: token.text, level: token.level, count: 1 });
+    }
     total++;
   }
   reading.replaceChildren(fragment);
@@ -121,6 +131,7 @@ function renderTokens() {
   renderLegend(counts);
   $('summary').textContent = `共 ${total} 个词 · ${total - (counts.get(null) ?? 0)} 个有等级`;
   $('copy').disabled = false;
+  vocabulary.setAnalysis([...words.values()]);
 }
 
 function selectToken(button, token) {
@@ -133,18 +144,18 @@ function selectToken(button, token) {
 }
 
 function view(name) {
-  const isLookup = name === 'lookup';
-  $('lookup-view').hidden = !isLookup;
-  $('analysis-view').hidden = isLookup;
-  for (const [id, active] of [['lookup-tab', isLookup], ['analysis-tab', !isLookup]]) {
-    $(id).classList.toggle('active', active);
-    $(id).setAttribute('aria-pressed', String(active));
+  for (const tab of ['analysis', 'lookup', 'vocabulary']) {
+    const active = name === tab;
+    $(`${tab}-view`).hidden = !active;
+    $(`${tab}-tab`).classList.toggle('active', active);
+    $(`${tab}-tab`).setAttribute('aria-pressed', String(active));
   }
-  if (isLookup) $('word').focus();
+  if (name === 'lookup') $('word').focus();
 }
 
 $('analysis-tab').addEventListener('click', () => view('analysis'));
 $('lookup-tab').addEventListener('click', () => view('lookup'));
+$('vocabulary-tab').addEventListener('click', () => view('vocabulary'));
 input.addEventListener('input', updateInput);
 $('analyze').addEventListener('click', analyze);
 $('example').addEventListener('click', () => {
@@ -184,8 +195,10 @@ try {
   levels = new Map(Object.entries(data).map(([word, entries]) => [word, entries[0]]));
   $('source-count').textContent = `1–6 级 · ${levels.size.toLocaleString('zh-CN')} 词`;
   $('lookup-submit').disabled = false;
+  vocabulary.setDictionary(levels);
   updateInput();
 } catch {
   $('source-count').textContent = '词表加载失败';
+  $('vocabulary-count').textContent = '词表加载失败，请刷新网页。';
   clearResult('词表加载失败，请刷新网页');
 }

@@ -125,3 +125,20 @@ dialog p { margin: 10px 0 16px; line-height: 1.6; font-size: 13px; color: var(--
   .ai-actions { align-items: flex-start; flex-direction: column; }
   footer { flex-wrap: wrap; }
 }
+
+.vocabulary { margin-top: 18px; padding: 22px; }
+.vocabulary-toolbar { flex-wrap: wrap; }
+.vocabulary-actions, .analysis-exports { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vocabulary-actions label, .analysis-exports > span { font-size: 13px; color: var(--muted); }
+.vocabulary-actions select { font: inherit; font-size: 13px; color: var(--ink); padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #faf9fc; }
+.vocabulary-actions select:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.vocabulary-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; list-style: none; margin: 15px 0 0; padding: 0; }
+.vocabulary-list li { display: flex; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.analysis-exports { margin-top: 12px; }
+.export-status { font-size: 12px; color: #a23431; }
+.export-status:empty { display: none; }
+button[aria-busy="true"] { cursor: progress; opacity: .65; }
+@media (max-width: 480px) {
+  .vocabulary { padding: 16px; }
+  .tabs { gap: 16px; }
+}

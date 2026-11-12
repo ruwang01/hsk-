@@ -28,6 +28,7 @@
     <nav class="tabs" aria-label="工具">
       <button class="tab active" id="analysis-tab" type="button" aria-pressed="true" aria-controls="analysis-view">全文分析</button>
       <button class="tab" id="lookup-tab" type="button" aria-pressed="false" aria-controls="lookup-view">单词查询</button>
+      <button class="tab" id="vocabulary-tab" type="button" aria-pressed="false" aria-controls="vocabulary-view">等级词表</button>
     </nav>
 
     <section class="workspace" id="analysis-view" aria-label="全文分析">
@@ -57,6 +58,15 @@
         <div class="selection" id="selection" hidden>
           <div class="selected-term"><strong id="selected-word"></strong><span id="selected-level"></span></div>
         </div>
+
+        <div class="analysis-exports" id="analysis-exports" hidden>
+          <span>导出分词词表</span>
+          <div class="actions">
+            <button class="quiet small" id="analysis-txt" type="button">TXT</button>
+            <button class="quiet small" id="analysis-xlsx" type="button">Excel</button>
+          </div>
+          <p class="export-status" id="analysis-export-status" aria-live="polite"></p>
+        </div>
       </section>
     </section>
 
@@ -69,6 +79,34 @@
         <button class="primary" type="submit" id="lookup-submit" disabled>查询 <span aria-hidden="true">→</span></button>
       </form>
       <div id="lookup-result" class="lookup-result" aria-live="polite" hidden></div>
+    </section>
+
+
+    <section class="panel vocabulary" id="vocabulary-view" aria-label="等级词表" hidden>
+      <div class="panel-header vocabulary-toolbar">
+        <div>
+          <h2>等级词表</h2>
+          <p id="vocabulary-count" aria-live="polite">正在载入词表…</p>
+        </div>
+        <div class="vocabulary-actions">
+          <label for="vocabulary-filter">HSK 等级</label>
+          <select id="vocabulary-filter" disabled>
+            <option value="">全部等级</option>
+            <option value="1" selected>1 级</option>
+            <option value="2">2 级</option>
+            <option value="3">3 级</option>
+            <option value="4">4 级</option>
+            <option value="5">5 级</option>
+            <option value="6">6 级</option>
+          </select>
+          <div class="actions" aria-label="导出当前词表">
+            <button class="quiet small" id="vocabulary-txt" type="button" disabled>导出 TXT</button>
+            <button class="primary small" id="vocabulary-xlsx" type="button" disabled>导出 Excel</button>
+          </div>
+        </div>
+      </div>
+      <p class="export-status" id="vocabulary-export-status" aria-live="polite"></p>
+      <ul class="vocabulary-list" id="vocabulary-list" aria-label="当前等级的词语"></ul>
     </section>
 
     <footer><span>词表来源 · HSKDictionary0830.xlsx</span><span>查词和分词在浏览器内完成</span></footer>
