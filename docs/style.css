@@ -142,3 +142,27 @@ button[aria-busy="true"] { cursor: progress; opacity: .65; }
   .vocabulary { padding: 16px; }
   .tabs { gap: 16px; }
 }
+
+.file-controls { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+.file-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+.file-label { display: inline-flex; align-items: center; cursor: pointer; }
+.file-input:focus-visible + .file-label { outline: 2px solid var(--focus); outline-offset: 3px; }
+.file-input:disabled + .file-label { opacity: .53; cursor: default; }
+.file-status { color: var(--muted); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; margin-top: 7px; }
+.file-status:empty { display: none; }
+.file-status.error { color: #a23431; }
+.preview-note { margin-bottom: 8px; }
+.statistics { grid-column: 1 / -1; padding: 22px; }
+.level-chart { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 18px 0 0; list-style: none; }
+.chart-column { min-width: 0; display: grid; grid-template-rows: auto 112px auto auto; justify-items: center; gap: 5px; font-variant-numeric: tabular-nums; }
+.chart-column strong { font-size: 13px; white-space: nowrap; }
+.chart-track { display: flex; align-items: end; justify-content: center; align-self: stretch; width: 100%; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to top, transparent 0, transparent calc(25% - 1px), #f0ecf4 calc(25% - 1px), #f0ecf4 25%); }
+.chart-bar { width: min(60%, 48px); border-radius: 4px 4px 0 0; background: var(--tag-ink); opacity: .75; }
+.chart-name { font-size: 12px; font-weight: 650; white-space: nowrap; }
+.chart-share { font-size: 11px; color: var(--muted); white-space: nowrap; }
+@media (max-width: 780px) { .statistics { padding: 16px; } }
+@media (max-width: 480px) {
+  .level-chart { gap: 4px; }
+  .chart-column { grid-template-rows: auto 86px auto auto; }
+  .chart-column strong, .chart-share, .chart-name { font-size: 10px; }
+}

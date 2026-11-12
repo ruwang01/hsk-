@@ -37,6 +37,15 @@
           <div><h2><label for="input">原文</label></h2><p>保留原文的标点与换行</p></div>
           <button class="quiet small" id="example" type="button">填入示例</button>
         </div>
+
+        <div class="file-controls">
+          <div>
+            <input class="file-input" id="document-file" type="file" accept=".txt,.docx,.pdf" aria-describedby="document-formats" disabled>
+            <label class="quiet small file-label" for="document-file">上传文档</label>
+          </div>
+          <span class="fine" id="document-formats">TXT、DOCX、文字版 PDF · 最大 25 MB</span>
+        </div>
+        <p class="file-status" id="document-status" aria-live="polite"></p>
         <textarea id="input" maxlength="12000" spellcheck="false" placeholder="在此粘贴一段中文文本…"></textarea>
         <div class="panel-footer">
           <span class="counter" id="characters">0 / 12,000 字符</span>
@@ -52,6 +61,7 @@
           <button class="quiet small" id="copy" type="button" disabled>复制分词</button>
         </div>
         <div class="legend" id="legend" aria-label="HSK 等级颜色"></div>
+        <p class="fine preview-note" id="analysis-preview" hidden>此处预览前 12,000 字符，统计、复制和导出使用全文。</p>
         <div class="reading" id="reading" aria-label="分级标色文本">
           <div class="empty"><span aria-hidden="true">文</span><p>分级结果将在这里显示</p></div>
         </div>
@@ -67,6 +77,16 @@
           </div>
           <p class="export-status" id="analysis-export-status" aria-live="polite"></p>
         </div>
+      </section>
+
+      <section class="panel statistics" id="level-statistics" aria-labelledby="statistics-title" hidden>
+        <div class="panel-header">
+          <div>
+            <h2 id="statistics-title">等级分布</h2>
+            <p>按词语出现次数计算占比，包含未收录词，标点不计入。</p>
+          </div>
+        </div>
+        <ul id="level-chart" class="level-chart" aria-label="各等级的词数和占比"></ul>
       </section>
     </section>
 

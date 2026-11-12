@@ -79,7 +79,8 @@ function dictionaryCut(block, frequencies, logTotal, model) {
   function flush() {
     if (buffer.length === 1) words.push(buffer);
     if (buffer.length > 1) {
-      words.push(...(frequencies.get(buffer) ? [...buffer] : hmmCut(buffer, model)));
+      const parts = frequencies.get(buffer) ? buffer : hmmCut(buffer, model);
+      for (const part of parts) words.push(part);
     }
     buffer = '';
   }
@@ -122,7 +123,7 @@ export function createSegmenter(dictionary, model, levels) {
     for (const match of text.matchAll(/[\u4e00-\u9fd5a-zA-Z0-9+#&._%\-]+|\r\n|[^]/gu)) {
       const block = match[0];
       if (/^[\u4e00-\u9fd5a-zA-Z0-9+#&._%\-]+$/u.test(block)) {
-        words.push(...dictionaryCut(block, frequencies, logTotal, model));
+        for (const word of dictionaryCut(block, frequencies, logTotal, model)) words.push(word);
       } else {
         words.push(block);
       }
