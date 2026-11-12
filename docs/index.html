@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7f4">
+  <meta name="description" content="查询 HSK 词语等级，粘贴中文文本分词标色。">
+  <title>HSK 词语工作台</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./" aria-label="HSK 词语工作台首页"><span class="brand-mark">词</span> HSK 词语工作台</a>
+    </div>
+  </header>
+  <main>
+    <section class="intro">
+      <div>
+        <h1>读懂文本的词语等级</h1>
+        <p>粘贴中文文本按 HSK 等级标色，点击词语查看等级。</p>
+      </div>
+      <div class="source"><span class="source-icon" aria-hidden="true">册</span><div><strong>HSK 等级词表</strong><span id="source-count">1–6 级</span></div></div>
+    </section>
+
+    <nav class="tabs" aria-label="工具">
+      <button class="tab active" id="analysis-tab" type="button" aria-pressed="true" aria-controls="analysis-view">全文分析</button>
+      <button class="tab" id="lookup-tab" type="button" aria-pressed="false" aria-controls="lookup-view">单词查询</button>
+    </nav>
+
+    <section class="workspace" id="analysis-view" aria-label="全文分析">
+      <section class="panel editor">
+        <div class="panel-header">
+          <div><h2><label for="input">原文</label></h2><p>保留原文的标点与换行</p></div>
+          <button class="quiet small" id="example" type="button">填入示例</button>
+        </div>
+        <textarea id="input" maxlength="12000" spellcheck="false" placeholder="在此粘贴一段中文文本…"></textarea>
+        <div class="panel-footer">
+          <span class="counter" id="characters">0 / 12,000 字符</span>
+          <div class="actions">
+            <button class="quiet small" id="clear" type="button">清空</button>
+            <button class="primary" id="analyze" type="button" disabled>分词并标记 <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+      </section>
+      <section class="panel reader">
+        <div class="panel-header">
+          <div><h2>分级结果</h2><p id="summary" aria-live="polite">点击词语查看详情</p></div>
+          <button class="quiet small" id="copy" type="button" disabled>复制分词</button>
+        </div>
+        <div class="legend" id="legend" aria-label="HSK 等级颜色"></div>
+        <div class="reading" id="reading" aria-label="分级标色文本">
+          <div class="empty"><span aria-hidden="true">文</span><p>分级结果将在这里显示</p></div>
+        </div>
+        <div class="selection" id="selection" hidden>
+          <div class="selected-term"><strong id="selected-word"></strong><span id="selected-level"></span></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel lookup" id="lookup-view" aria-label="单词查询" hidden>
+      <div class="panel-header">
+        <div><h2><label for="word">查询词语等级</label></h2><p>输入一个词语，按词表精确查询。</p></div>
+      </div>
+      <form id="lookup-form" class="lookup-form">
+        <input id="word" name="word" type="search" maxlength="60" required placeholder="例如：立刻" autocomplete="off">
+        <button class="primary" type="submit" id="lookup-submit" disabled>查询 <span aria-hidden="true">→</span></button>
+      </form>
+      <div id="lookup-result" class="lookup-result" aria-live="polite" hidden></div>
+    </section>
+
+    <footer><span>词表来源 · HSKDictionary0830.xlsx</span><span>查词和分词在浏览器内完成</span></footer>
+  </main>
+</body>
+</html>
